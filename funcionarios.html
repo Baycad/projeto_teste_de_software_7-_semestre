@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Funcionários</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <h2>RH System</h2>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="funcionarios.html">Funcionários</a>
+    <a href="cadastro.html">Cadastrar</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <h1>Funcionários</h1>
+
+  <input type="text" id="busca" placeholder="Buscar por nome ou CPF">
+
+  <select id="filtroDepartamento">
+    <option value="">Todos Departamentos</option>
+    <option value="TI">TI</option>
+    <option value="RH">RH</option>
+    <option value="Financeiro">Financeiro</option>
+    <option value="Marketing">Marketing</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Departamento</th>
+        <th>Nível</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="listaFuncionarios"></tbody>
+  </table>
+</main>
+
+<script src="js/database.js"></script>
+<script src="js/funcionarios.js"></script>
+</body>
+</html>

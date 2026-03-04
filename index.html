@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - RH System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <h2>RH System</h2>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="funcionarios.html">Funcionários</a>
+    <a href="cadastro.html">Cadastrar</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <h1>Dashboard</h1>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Total Funcionários</h3>
+      <p id="total"></p>
+    </div>
+
+    <div class="card">
+      <h3>Departamento TI</h3>
+      <p id="totalTI"></p>
+    </div>
+
+    <div class="card">
+      <h3>Departamento RH</h3>
+      <p id="totalRH"></p>
+    </div>
+  </div>
+</main>
+
+<script src="js/database.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

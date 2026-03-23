@@ -5,14 +5,6 @@
 // ── ESTADO GLOBAL ──
 let funcionarios = JSON.parse(localStorage.getItem('baycad_rh') || '[]');
 
-// Dados de exemplo iniciais
-if (funcionarios.length === 0) {
-  funcionarios = [
-    { id: 1, nome: 'Lucas Soares', cpf: '084.235.331-31', dept: 'TI', nivel: 'Júnior', data: '2026-03-02' },
-  ];
-  saveData();
-}
-
 /**
  * Persiste o array de funcionários no localStorage.
  */

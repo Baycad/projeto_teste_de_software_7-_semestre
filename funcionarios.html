@@ -2,49 +2,121 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Funcionários</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baycad RH — Funcionários</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/frontend/css/style.css">
 </head>
 <body>
 
-<aside class="sidebar">
-  <h2>RH System</h2>
-  <nav>
-    <a href="index.html">Dashboard</a>
-    <a href="funcionarios.html">Funcionários</a>
-    <a href="cadastro.html">Cadastrar</a>
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <h1>RH System</h1>
+      <span>Baycad · v1.0</span>
+    </div>
+    <div class="sidebar-nav">
+      <a class="nav-item" href="/frontend/index.html">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+      <a class="nav-item active" href="/frontend/funcionarios.html">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Funcionários
+      </a>
+      <a class="nav-item" href="/frontend/cadastro.html">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/>
+          <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+        Cadastrar
+      </a>
+    </div>
   </nav>
-</aside>
 
-<main class="content">
-  <h1>Funcionários</h1>
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title">Funcionários</div>
+      <div class="page-subtitle">Gerencie todos os funcionários cadastrados</div>
+    </div>
 
-  <input type="text" id="busca" placeholder="Buscar por nome ou CPF">
+    <div class="toolbar">
+      <input type="text" class="search-input" id="search-input"
+        placeholder="🔍  Buscar por nome ou CPF..." oninput="renderTabela()">
+      <select class="filter-select" id="filter-dept" onchange="renderTabela()">
+        <option value="">Todos Departamentos</option>
+        <option value="TI">TI</option>
+        <option value="RH">RH</option>
+        <option value="Financeiro">Financeiro</option>
+        <option value="Comercial">Comercial</option>
+        <option value="Operações">Operações</option>
+      </select>
+      <button class="btn btn-ghost" onclick="clearFilters()">Limpar filtros</button>
+      <a class="btn btn-primary" href="/frontend/cadastro.html">+ Novo funcionário</a>
+    </div>
 
-  <select id="filtroDepartamento">
-    <option value="">Todos Departamentos</option>
-    <option value="TI">TI</option>
-    <option value="RH">RH</option>
-    <option value="Financeiro">Financeiro</option>
-    <option value="Marketing">Marketing</option>
-  </select>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Departamento</th>
+            <th>Nível</th>
+            <th>Data Admissão</th>
+            <th style="text-align:right">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-body"></tbody>
+      </table>
+      <div id="tabela-empty" class="empty-state" style="display:none">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>
+        <p>Nenhum funcionário encontrado.</p>
+      </div>
+    </div>
+  </main>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>CPF</th>
-        <th>Departamento</th>
-        <th>Nível</th>
-        <th>Data</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="listaFuncionarios"></tbody>
-  </table>
-</main>
+  <!-- MODAL CONFIRMAÇÃO EXCLUSÃO -->
+  <div class="modal-overlay" id="modal-excluir">
+    <div class="modal">
+      <div class="modal-icon">
+        <svg width="20" height="20" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14H6L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4h6v2"/>
+        </svg>
+      </div>
+      <h3>Excluir funcionário?</h3>
+      <p>Esta ação não pode ser desfeita. O funcionário <strong id="modal-nome"></strong> será removido permanentemente do sistema.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmarExclusao()">Sim, excluir</button>
+      </div>
+    </div>
+  </div>
 
-<script src="js/database.js"></script>
-<script src="js/funcionarios.js"></script>
+  <!-- TOASTS -->
+  <div class="toast-container" id="toasts"></div>
+
+  <script src="/frontend/js/utils.js"></script>
+  <script src="/frontend/js/funcionarios.js"></script>
+
 </body>
 </html>

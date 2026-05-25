@@ -2,78 +2,62 @@
 // dashboard.js — Métricas e distribuição por departamento
 // ============================================================
 
-const DEPT_LIST   = ['TI', 'RH', 'Financeiro', 'Comercial', 'Operações'];
-const DEPT_COLORS = ['success', 'warn', '', '', ''];
+const DEPT_LIST = ["TI", "RH", "Financeiro", "Comercial", "Operações"];
+const DEPT_COLORS = ["success", "warn", "", "", ""];
 
 /**
- * Atualiza todos os elementos do Dashboard com os dados atuais.
- * Chamado ao navegar para a tela de dashboard e após exclusões.
+ * Busca dados consolidados no backend e renderiza a tela
  */
-function updateDashboard() {
-  _renderTotal();
-  _renderDeptCards();
-  _renderDeptBreakdown();
+async function updateDashboard() {
+  try {
+    const response = await fetch(`${API_URL}/dashboard`);
+    if (!response.ok) throw new Error("Erro ao buscar dados do dashboard");
+
+    const data = await response.json(); // { total: X, por_departamento: {...} }
+
+    _renderTotal(data.total);
+    _renderDeptCards(data.por_departamento);
+    _renderDeptBreakdown(data.por_departamento);
+  } catch (error) {
+    console.error("Erro no dashboard:", error);
+  }
 }
 
-/**
- * Renderiza o card de total de funcionários.
- * @private
- */
-function _renderTotal() {
-  document.getElementById('dash-total').textContent = funcionarios.length;
+function _renderTotal(total) {
+  document.getElementById("dash-total").textContent = total;
 }
 
-/**
- * Renderiza os cards de contagem por departamento dentro do stats-grid.
- * @private
- */
-function _renderDeptCards() {
-  const counts    = _countByDept();
-  const container = document.getElementById('dept-cards-container');
-  container.innerHTML = '';
+function _renderDeptCards(por_departamento) {
+  const container = document.getElementById("dept-cards-container");
+  container.innerHTML = "";
 
   DEPT_LIST.forEach((dept, i) => {
-    const card = document.createElement('div');
-    card.className = `stat-card ${DEPT_COLORS[i] || ''}`;
+    const qtd = por_departamento[dept] || 0;
+    const card = document.createElement("div");
+    card.className = `stat-card ${DEPT_COLORS[i] || ""}`;
     card.innerHTML = `
       <div class="stat-label">Depto. ${dept}</div>
-      <div class="stat-value">${counts[dept] || 0}</div>
+      <div class="stat-value">${qtd}</div>
       <div class="stat-badge">funcionários</div>
     `;
     container.appendChild(card);
   });
 }
 
-/**
- * Renderiza as pills de distribuição por departamento.
- * @private
- */
-function _renderDeptBreakdown() {
-  const counts    = _countByDept();
-  const breakdown = document.getElementById('dept-breakdown');
-  breakdown.innerHTML = '';
+function _renderDeptBreakdown(por_departamento) {
+  const breakdown = document.getElementById("dept-breakdown");
+  breakdown.innerHTML = "";
 
-  DEPT_LIST.forEach(dept => {
-    const pill = document.createElement('div');
-    pill.className = 'dept-pill';
+  DEPT_LIST.forEach((dept) => {
+    const qtd = por_departamento[dept] || 0;
+    const pill = document.createElement("div");
+    pill.className = "dept-pill";
     pill.innerHTML = `
       <div class="dept-pill-label">${dept}</div>
-      <div class="dept-pill-count">${counts[dept] || 0}</div>
+      <div class="dept-pill-count">${qtd}</div>
     `;
     breakdown.appendChild(pill);
   });
-}
-
-/**
- * Retorna um objeto { [dept]: count } com a contagem de funcionários por departamento.
- * @private
- * @returns {Object.<string, number>}
- */
-function _countByDept() {
-  return funcionarios.reduce((acc, f) => {
-    acc[f.dept] = (acc[f.dept] || 0) + 1;
-    return acc;
-  }, {});
 }
 
 // ── INIT ──

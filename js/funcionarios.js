@@ -4,61 +4,54 @@
 
 let _deleteId = null;
 
-// ── TABELA ──
-
 /**
- * Renderiza a tabela de funcionários aplicando busca e filtro de departamento.
- * Chamado a cada input no campo de busca ou mudança no filtro.
+ * Renderiza a tabela buscando os dados em tempo real da API com filtros
  */
-function renderTabela() {
-  const filtered = _filtrarFuncionarios();
-  const tbody    = document.getElementById('tabela-body');
-  const empty    = document.getElementById('tabela-empty');
+async function renderTabela() {
+  const busca = document.getElementById("search-input").value;
+  const dept = document.getElementById("filter-dept").value;
 
-  if (filtered.length === 0) {
-    tbody.innerHTML    = '';
-    empty.style.display = 'block';
-    return;
+  // Constrói os parâmetros dinâmicos de busca para a API
+  let url = `${API_URL}/funcionarios?`;
+  if (busca) url += `busca=${encodeURIComponent(busca)}&`;
+  if (dept) url += `dept=${encodeURIComponent(dept)}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Erro ao listar funcionários");
+
+    // Atualiza a lista global localmente para fins de consulta do Modal
+    funcionarios = await response.json();
+
+    const tbody = document.getElementById("tabela-body");
+    const empty = document.getElementById("tabela-empty");
+
+    if (funcionarios.length === 0) {
+      tbody.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+
+    empty.style.display = "none";
+    tbody.innerHTML = funcionarios.map(_buildRow).join("");
+  } catch (error) {
+    console.error("Erro na tabela:", error);
   }
-
-  empty.style.display = 'none';
-  tbody.innerHTML = filtered.map(_buildRow).join('');
 }
 
-/**
- * Filtra o array global `funcionarios` pela busca e pelo departamento selecionado.
- * @private
- * @returns {Array} funcionários filtrados
- */
-function _filtrarFuncionarios() {
-  const query = document.getElementById('search-input').value
-    .toLowerCase()
-    .replace(/[.\-]/g, '');
-  const dept = document.getElementById('filter-dept').value;
-
-  return funcionarios.filter(f => {
-    const cpfLimpo   = f.cpf.replace(/[.\-]/g, '');
-    const matchBusca = !query || f.nome.toLowerCase().includes(query) || cpfLimpo.includes(query);
-    const matchDept  = !dept  || f.dept === dept;
-    return matchBusca && matchDept;
-  });
-}
-
-/**
- * Monta o HTML de uma linha da tabela.
- * @private
- * @param {Object} f - Funcionário
- * @returns {string} HTML da <tr>
- */
 function _buildRow(f) {
-  const deptClass = f.dept.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  // Trata o departamento mapeado do backend ("departamento")
+  const deptClass = f.departamento
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
   return `
     <tr>
       <td><strong>${f.nome}</strong></td>
-      <td class="cpf-cell">${f.cpf}</td>
-      <td><span class="badge badge-${deptClass}">${f.dept}</span></td>
-      <td><span class="nivel-badge">${f.nivel}</span></td>
-      <td style="color:var(--text-muted);font-size:13px">${formatDate(f.data)}</td>
+      <td class="cpf-cell">${f.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}</td>
+      <td><span class="badge badge-${deptClass}">${f.departamento}</span></td>
+      <td><span class="nivel-badge">${f.nivel || "Júnior"}</span></td>
+      <td style="color:var(--text-muted);font-size:13px">${formatDate(f.data_admissao)}</td>
       <td style="text-align:right">
         <button class="btn btn-danger" onclick="excluir(${f.id})">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -74,50 +67,52 @@ function _buildRow(f) {
   `;
 }
 
-/**
- * Limpa os campos de busca e filtro e re-renderiza a tabela.
- */
 function clearFilters() {
-  document.getElementById('search-input').value = '';
-  document.getElementById('filter-dept').value  = '';
+  document.getElementById("search-input").value = "";
+  document.getElementById("filter-dept").value = "";
   renderTabela();
 }
 
-// ── EXCLUSÃO ──
+// ── EXCLUSÃO (Consumindo DELETE da API) ──
 
-/**
- * Abre o modal de confirmação de exclusão para o funcionário informado.
- * @param {number} id - ID do funcionário
- */
 function excluir(id) {
   _deleteId = id;
-  const f   = funcionarios.find(x => x.id === id);
-  document.getElementById('modal-nome').textContent = f ? f.nome : '';
-  document.getElementById('modal-excluir').classList.add('open');
+  const f = funcionarios.find((x) => x.id === id);
+  document.getElementById("modal-nome").textContent = f ? f.nome : "";
+  document.getElementById("modal-excluir").classList.add("open");
 }
 
-/**
- * Confirma e executa a exclusão do funcionário selecionado.
- * Atualiza tabela e dashboard após a operação.
- */
-function confirmarExclusao() {
-  funcionarios = funcionarios.filter(f => f.id !== _deleteId);
-  saveData();
-  closeModal();
-  renderTabela();
-  updateDashboard();
-  toast('Funcionário excluído com sucesso.', 'success');
+async function confirmarExclusao() {
+  if (!_deleteId) return;
+
+  try {
+    const response = await fetch(`${API_URL}/funcionarios/${_deleteId}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      closeModal();
+      renderTabela();
+      toast("Funcionário excluído com sucesso.", "success");
+    } else {
+      toast("Não foi possível excluir o funcionário.", "error");
+    }
+  } catch (error) {
+    console.error("Erro ao deletar:", error);
+    toast("Erro de conexão com o servidor.", "error");
+  }
 }
 
-/**
- * Fecha o modal de confirmação de exclusão.
- */
 function closeModal() {
-  document.getElementById('modal-excluir').classList.remove('open');
+  document.getElementById("modal-excluir").classList.remove("open");
   _deleteId = null;
 }
 
-// Fecha o modal ao clicar no overlay
-document.getElementById('modal-excluir').addEventListener('click', function (e) {
-  if (e.target === this) closeModal();
-});
+document
+  .getElementById("modal-excluir")
+  .addEventListener("click", function (e) {
+    if (e.target === this) closeModal();
+  });
+
+// Executa a primeira carga da tabela ao abrir a página
+renderTabela();

@@ -1,0 +1,26 @@
+# Ambiente virtual Python
+.venv/
+venv/
+env/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Banco de dados local (gerado automaticamente)
+python/baycad_rh.db
+baycad_rh.db
+*.db
+
+# Dependências Node (caso existam localmente)
+node_modules/
+package-lock.json
+package.json
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

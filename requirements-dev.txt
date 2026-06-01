@@ -1,0 +1,4 @@
+# Dependências usadas APENAS para testes (não necessárias em produção)
+pytest>=8.0
+httpx>=0.27          # requerido pelo TestClient do FastAPI (testes de API)
+playwright>=1.40     # testes E2E no navegador (usa o Chrome instalado via channel="chrome")

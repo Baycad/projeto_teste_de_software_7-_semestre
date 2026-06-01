@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from database import Base
-from passlib.context import CryptContext
+import bcrypt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Funcionario(Base):
     __tablename__ = "funcionarios"
@@ -12,12 +11,16 @@ class Funcionario(Base):
     cpf = Column(String, unique=True, index=True, nullable=False)
     departamento = Column(String, nullable=False)
     nivel = Column(String, nullable=True)
-    data_admissao = Column(String, nullable=False) # Armazenado como YYYY-MM-DD
+    data_admissao = Column(String, nullable=False)  # Armazenado como YYYY-MM-DD
     senha_hash = Column(String, nullable=False)
 
-    def verificar_senha(self, senha: str):
-        return pwd_context.verify(senha, self.senha_hash)
+    def verificar_senha(self, senha: str) -> bool:
+        senha_bytes = senha.encode("utf-8")[:72]
+        hash_bytes = self.senha_hash.encode("utf-8")
+        return bcrypt.checkpw(senha_bytes, hash_bytes)
 
     @staticmethod
-    def gerar_hash(senha: str):
-        return pwd_context.hash(senha)
+    def gerar_hash(senha: str) -> str:
+        senha_bytes = senha.encode("utf-8")[:72]
+        salt = bcrypt.gensalt()
+        return bcrypt.hashpw(senha_bytes, salt).decode("utf-8")

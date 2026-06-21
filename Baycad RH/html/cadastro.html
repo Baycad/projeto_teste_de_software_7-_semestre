@@ -65,7 +65,7 @@
 
         <div class="form-group">
           <label class="form-label">CPF <span class="required">*</span></label>
-          <input type="text" class="form-input" id="f-cpf" placeholder="000.000.000-00"
+          <input type="text" class="form-input" id="f-cpf" placeholder="000.000.000-00" 
             oninput="maskCPF(this); clearErr('cpf')" maxlength="14">
           <span class="field-error" id="err-cpf">CPF inválido ou já cadastrado.</span>
         </div>
@@ -111,7 +111,7 @@
 
         <div class="form-actions">
           <button class="btn btn-ghost" onclick="resetForm()">Limpar</button>
-          <button class="btn btn-primary" onclick="salvarFuncionario()">Salvar funcionário</button>
+          <button class="btn btn-primary" onclick="salvarFuncionario(event)">Salvar funcionário</button>
         </div>
 
       </div>
@@ -121,8 +121,8 @@
   <!-- TOASTS -->
   <div class="toast-container" id="toasts"></div>
 
-  <script src="js/utils.js"></script>
-  <script src="js/cadastro.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cadastro.js"></script>
 
 </body>
 </html>

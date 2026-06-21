@@ -2,7 +2,7 @@
 // utils.js — Estado global, persistência, navegação e toasts
 // ============================================================
 
-// Endereço centralizado do seu backend FastAPI
+// Endereço centralizado do FastAPI
 const API_URL = "http://127.0.0.1:8000/api";
 
 // Mantemos a variável global vazia por padrão, ela será preenchida via API pelas outras telas
